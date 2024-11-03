@@ -11,7 +11,7 @@ configure_logger(logger)
 
 
 class BattleModel:
-     """
+    """
     A class to manage a list of combatants.
 
     Attribute:
@@ -19,7 +19,7 @@ class BattleModel:
 
     """
     def __init__(self):
-         """
+        """
         Initializes the BattleModel with an empty list of combatants.
         """
         self.combatants: List[Meal] = []
