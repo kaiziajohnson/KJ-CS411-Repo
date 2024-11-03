@@ -1,14 +1,14 @@
 import logging
 import requests
 
-from meal_max.utils.logger import configure_logger
+from meal_max.meal_max.utils.logger import configure_logger
 
 logger = logging.getLogger(__name__)
 configure_logger(logger)
 
 
 def get_random() -> float:
-     """
+    """
     Fetches a random int between 1 and the number of meals in the catalog from random.org.
 
     Returns:

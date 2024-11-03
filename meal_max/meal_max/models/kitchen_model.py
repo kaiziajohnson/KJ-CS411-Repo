@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 import logging
 import sqlite3
-from typing import Any
+from typing import Dict, Any
 
-from meal_max.utils.sql_utils import get_db_connection
-from meal_max.utils.logger import configure_logger
+from meal_max.meal_max.utils.sql_utils import get_db_connection
+from meal_max.meal_max.utils.logger import configure_logger
 
 
 logger = logging.getLogger(__name__)
@@ -99,7 +99,7 @@ def delete_meal(meal_id: int) -> None:
         logger.error("Database error: %s", str(e))
         raise e
 
-def get_leaderboard(sort_by: str="wins") -> dict[str, Any]:
+def get_leaderboard(sort_by: str="wins") -> Dict[str, Any]:
     """
     Retrieves the Thunderdiner leaderboard
 
