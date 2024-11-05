@@ -42,9 +42,9 @@ def create_meal(meal: str, cuisine: str, price: float, difficulty: str) -> None:
         sqlite3.Error: For any other database errors.
     """
     if not isinstance(price, (int, float)) or price <= 0:
-        raise ValueError(f"Invalid price: {price}. Price must be a positive number.")
+        raise ValueError(f"Invalid price: Price must be a positive number.")
     if difficulty not in ['LOW', 'MED', 'HIGH']:
-        raise ValueError(f"Invalid difficulty level: {difficulty}. Must be 'LOW', 'MED', or 'HIGH'.")
+        raise ValueError(f"Invalid difficulty level. Must be 'LOW', 'MED', or 'HIGH'.")
 
     try:
         with get_db_connection() as conn:
@@ -59,7 +59,7 @@ def create_meal(meal: str, cuisine: str, price: float, difficulty: str) -> None:
 
     except sqlite3.IntegrityError:
         logger.error("Duplicate meal name: %s", meal)
-        raise ValueError(f"Meal with name '{meal}' already exists")
+        raise ValueError(f"Meal with name '{meal}' already exists.")
 
     except sqlite3.Error as e:
         logger.error("Database error: %s", str(e))
@@ -85,7 +85,7 @@ def delete_meal(meal_id: int) -> None:
                 deleted = cursor.fetchone()[0]
                 if deleted:
                     logger.info("Meal with ID %s has already been deleted", meal_id)
-                    raise ValueError(f"Meal with ID {meal_id} has been deleted")
+                    raise ValueError(f"Meal with ID {meal_id} has already been deleted")
             except TypeError:
                 logger.info("Meal with ID %s not found", meal_id)
                 raise ValueError(f"Meal with ID {meal_id} not found")
@@ -224,10 +224,11 @@ def get_meal_by_name(meal_name: str) -> Meal:
 
 def update_meal_stats(meal_id: int, result: str) -> None:
     """
-    Increments the battle count of a song by meal ID.
+    Increments the battle count of a meal by meal ID.
 
     Args:
         meal_id (int): The ID of the meal whose battle count should be incremented.
+        result (string): Whether it was a win or a loss.
 
     Raises:
         ValueError: If the meal does not exist or is marked as deleted.
@@ -250,7 +251,7 @@ def update_meal_stats(meal_id: int, result: str) -> None:
             if result == 'win':
                 cursor.execute("UPDATE meals SET battles = battles + 1, wins = wins + 1 WHERE id = ?", (meal_id,))
             elif result == 'loss':
-                cursor.execute("UPDATE meals SET battles = battles + 1 WHERE id = ?", (meal_id,))
+                cursor.execute("UPDATE meals SET battles = battles + 1, loss = loss + 1  WHERE id = ?", (meal_id,))
             else:
                 raise ValueError(f"Invalid result: {result}. Expected 'win' or 'loss'.")
 
