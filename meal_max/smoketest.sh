@@ -52,14 +52,22 @@ check_db() {
 #
 ##########################################################
 
+<<<<<<< HEAD
 create_song() {
+=======
+create_meal() {
+>>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
   meal=$1
   cuisine=$2
   price=$3
   difficulty=$4
 
   echo "Adding meal ($meal - $cusine, $price) to the kitchen..."
+<<<<<<< HEAD
   curl -s -X POST "$BASE_URL/create-song" -H "Content-Type: application/json" \
+=======
+  curl -s -X POST "$BASE_URL/create-meal" -H "Content-Type: application/json" \
+>>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
     -d "{\"meal\":\"$meal\", \"title\":\"$title\", \"price\":$price, \"difficulty\":\"$difficulty\"}" | grep -q '"status": "success"'
 
   if [ $? -eq 0 ]; then
@@ -70,7 +78,11 @@ create_song() {
   fi
 }
 
+<<<<<<< HEAD
 delete_song_by_id() {
+=======
+delete_meal() {
+>>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
   meal_id=$1
 
   echo "Deleting meal by ID ($meal_id)..."
@@ -87,9 +99,15 @@ get_meal_by_id() {
   meal_id=$1
 
   echo "Getting meal by ID ($meal_id)..."
+<<<<<<< HEAD
   response=$(curl -s -X GET "$BASE_URL/get-song-from-catalog-by-id/$meal_id")
   if echo "$response" | grep -q '"status": "success"'; then
     echo "Song retrieved successfully by ID ($meal_id)."
+=======
+  response=$(curl -s -X GET "$BASE_URL/get-meal-by-id/$meal_id")
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "Meal retrieved successfully by ID ($meal_id)."
+>>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
     if [ "$ECHO_JSON" = true ]; then
       echo "Meal JSON (ID $meal_id):"
       echo "$response" | jq .
@@ -100,6 +118,7 @@ get_meal_by_id() {
   fi
 }
 
+<<<<<<< HEAD
 get_song_by_compound_key() {
   artist=$1
   title=$2
@@ -115,6 +134,78 @@ get_song_by_compound_key() {
     fi
   else
     echo "Failed to get song by compound key."
+=======
+############################################################
+#
+# Battle Management
+#
+############################################################
+
+clear_combatants(){
+  echo "Clearing the combatant list."
+  response=$(curl -s -X POST "$BASE_URL/clear-combatants")
+
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "All combatants cleared successfully."
+  else
+    echo "Failed to clear combatants."
+    exit 1
+  fi
+}
+
+get_battle_score() {
+  id=$1
+  echo "Calculating battle score for combatant with ID: $meal_id..."
+  response=$(curl -s -X GET "$BASE_URL/get-battle-score/$meal_id")
+
+  if echo "$response" | grep -q '"status": "success"'; then
+    score=$(echo "$response" | jq -r '.score')
+    echo "Battle score for combatant ID $meal_id: $score"
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Battle Score JSON:"
+      echo "$response" | jq .
+    fi
+  else
+    echo "Failed to calculate battle score for combatant ID $meal_id."
+    exit 1
+  fi
+}
+
+get_combatants() {
+  echo "Retrieving current list of combatants..."
+  response=$(curl -s -X GET "$BASE_URL/get-combatants")
+
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "Combatants retrieved successfully."
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Combatants JSON:"
+      echo "$response" | jq .
+    fi
+  else
+    echo "Failed to retrieve combatants."
+    exit 1
+  fi
+}
+
+prep_combatant() {
+  meal=$1
+  price=$2
+  cuisine=$3
+  difficulty=$4
+
+  echo "Adding meals to combatant list: $meal, Price: $price, Cuisine: $cuisine, Difficulty: $difficulty..."
+  response=$(curl -s -X POST "$BASE_URL/prep-combatant" -H "Content-Type: application/json" \
+    -d "{\"meal\": \"$meal\", \"price\": $price, \"cuisine\": \"$cuisine\", \"difficulty\": \"$difficulty\"}")
+
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "Combatant $meal added successfully."
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Response JSON:"
+      echo "$response" | jq .
+    fi
+  else
+    echo "Failed to add combatant $meal."
+>>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
     exit 1
   fi
 }
@@ -128,7 +219,11 @@ get_song_by_compound_key() {
 # Function to get the meal leaderboard sorted by meal stats
 get_meal_leaderboard() {
   echo "Getting meal leaderboard sorted by meal stats..."
+<<<<<<< HEAD
   response=$(curl -s -X GET "$BASE_URL/song-leaderboard?sort=meal_stats")
+=======
+  response=$(curl -s -X GET "$BASE_URL/meal-leaderboard?sort=meal_stats")
+>>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
   if echo "$response" | grep -q '"status": "success"'; then
     echo "Meal leaderboard retrieved successfully."
     if [ "$ECHO_JSON" = true ]; then
@@ -139,4 +234,33 @@ get_meal_leaderboard() {
     echo "Failed to get meal leaderboard."
     exit 1
   fi
+<<<<<<< HEAD
 }
+=======
+}
+
+# Health checks
+check_health
+check_db
+
+meal: str, cuisine: str, price: float, difficulty: str
+#Create meals
+create_meal "Burger" "American" 5.0 'MED'
+create_meal "Pizza" "Itlaian" 7.0 'LOW'
+create_meal "Sushi" "Japanese" 4.0 'LOW'
+
+delete_meal 3
+get_meal_by_id 2
+
+prep_combatant "Burger" "American" 5.0 'MED'
+prep_combatant "Pizza" "Itlaian" 7.0 'LOW'
+prep_combatant "Sushi" "Japanese" 4.0 'LOW'
+
+get_combatants
+get_battle_score 1
+get_battle_score 2
+
+clear_combatants
+
+echo "All tests passed successfully!"
+>>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
