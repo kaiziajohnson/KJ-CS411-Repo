@@ -46,7 +46,7 @@ def mock_cursor(mocker):
 def test_create_meal(mock_cursor):
     """Test creating a new meal in the kitchen/thunderdiner."""
 
-    # Call the function to create a new song
+    # Call the function to create a new meal
     create_meal(meal="Meal Name", cuisine="Meal Type", price = 20.22, difficulty = "LOW")
 
     expected_query = normalize_whitespace("""
@@ -65,7 +65,7 @@ def test_create_meal(mock_cursor):
     expected_arguments = ("Meal Name", "Meal Type", 20.22, "LOW")
     assert actual_arguments == expected_arguments, f"The SQL query arguments did not match. Expected {expected_arguments}, got {actual_arguments}."
 
-def test_create_song_duplicate(mock_cursor):
+def test_create_meal_duplicate(mock_cursor):
     """Test creating a meal with a duplicate meal name (should raise an error)."""
 
     # Simulate that the database will raise an IntegrityError due to a duplicate entry
@@ -75,30 +75,30 @@ def test_create_song_duplicate(mock_cursor):
     with pytest.raises(ValueError, match="Meal with name 'Meal Name' already exists."):
         create_meal(meal="Meal Name", cuisine = "Meal Type", price = 20.22, difficulty = "LOW")
 
-def test_create_song_invalid_price():
-    """Test error when trying to create a song with an invalid price (e.g., negative price)"""
+def test_create_meal_invalid_price():
+    """Test error when trying to create a meal with an invalid price (e.g., negative price)"""
 
-    # Attempt to create a song with a negative price
+    # Attempt to create a meal with a negative price
     with pytest.raises(ValueError, match="Invalid price: Price must be a positive number."):
         create_meal(meal="Meal Name", cuisine="Meal Type", price= -20.22, difficulty = "LOW")
 
-    # Attempt to create a song with a non-float price
+    # Attempt to create a meal with a non-float price
     with pytest.raises(ValueError, match="Invalid price: Price must be a positive number."):
         create_meal(meal="Meal Name", cuisine="Meal Type", price = "invalid", difficulty = "LOW")
 
-def test_create_song_invalid_difficulty():
+def test_create_meal_invalid_difficulty():
     """Test error when trying to create a meal with an invlaid difficulty (e.g., value that is not "LOW, MEDIUM, or HIGH")"""
-    # Attempt to create a song with an invalid duration
+    # Attempt to create a meal with an invalid duration
     with pytest.raises(ValueError, match="Invalid difficulty level. Must be 'LOW', 'MED', or 'HIGH'."):
         create_meal(meal="Meal Name", cuisine="Meal Type", price = 20.22, difficulty = "invalid")
 
-def test_delete_song(mock_cursor):
+def test_delete_meal(mock_cursor):
     """Test soft deleting a meal from the kitchen by meal ID."""
 
-    # Simulate that the song exists (id = 1)
+    # Simulate that the meal exists (id = 1)
     mock_cursor.fetchone.return_value = ([False])
 
-    # Call the delete_song function
+    # Call the delete_meal function
     delete_meal(1)
 
     # Normalize the SQL for both queries (SELECT and UPDATE)
@@ -129,17 +129,17 @@ def test_delete_meal_bad_id(mock_cursor):
     # Simulate that no meal exists with the given ID
     mock_cursor.fetchone.return_value = None
 
-    # Expect a ValueError when attempting to delete a non-existent song
+    # Expect a ValueError when attempting to delete a non-existent meal
     with pytest.raises(ValueError, match="Meal with ID 999 not found"):
         delete_meal(999)
 
-def test_delete_song_already_deleted(mock_cursor):
+def test_delete_meal_already_deleted(mock_cursor):
     """Test error when trying to delete a meal that's already marked as deleted."""
 
-    # Simulate that the song exists but is already marked as deleted
+    # Simulate that the meal exists but is already marked as deleted
     mock_cursor.fetchone.return_value = ([True])
 
-    # Expect a ValueError when attempting to delete a song that's already been deleted
+    # Expect a ValueError when attempting to delete a meal that's already been deleted
     with pytest.raises(ValueError, match="Meal with ID 999 has already been deleted"):
         delete_meal(999)
 
@@ -150,7 +150,7 @@ def test_delete_song_already_deleted(mock_cursor):
 ######################################################
 
 def test_get_meal_by_id(mock_cursor):
-    # Simulate that the song exists (id = 1)
+    # Simulate that the meal exists (id = 1)
     mock_cursor.fetchone.return_value = (1, "Meal Name", "Meal Type", 20.22, "LOW", False)
 
     # Call the function and check the result
@@ -177,15 +177,16 @@ def test_get_meal_by_id(mock_cursor):
     assert actual_arguments == expected_arguments, f"The SQL query arguments did not match. Expected {expected_arguments}, got {actual_arguments}."
 
 def test_get_meal_by_id_bad_id(mock_cursor):
-    # Simulate that no song exists for the given ID
+    # Simulate that no meal exists for the given ID
     mock_cursor.fetchone.return_value = None
 
-    # Expect a ValueError when the song is not found
+    # Expect a ValueError when the meal is not found
     with pytest.raises(ValueError, match="Meal with ID 999 not found"):
         get_meal_by_id(999)
 
 def test_get_meal_by_name(mock_cursor):
-    # Simulate that the song exists (meal = "Meal Name", cuisine = "Meal Type", price = 20.22)
+    # Simulate that the meal
+    # exists (meal = "Meal Name", cuisine = "Meal Type", price = 20.22)
     mock_cursor.fetchone.return_value = (1, "Meal Name", "Meal Type", 20.22, "LOW", False)
 
     # Call the function and check the result
@@ -216,7 +217,7 @@ def test_get_meal_by_name(mock_cursor):
 def test_update_meal_stats(mock_cursor): #not done
     """Test updating the battle stats of a meal."""
 
-    # Simulate that the song exists and is not deleted (id = 1)
+    # Simulate that the meal exists and is not deleted (id = 1)
     mock_cursor.fetchone.return_value = [False]
 
     # Call the update_meal_stats function with a sample meal ID
@@ -238,18 +239,18 @@ def test_update_meal_stats(mock_cursor): #not done
     # Extract the arguments used in the SQL call
     actual_arguments = mock_cursor.execute.call_args_list[1][0][1]
 
-    # Assert that the SQL query was executed with the correct arguments (song ID)
+    # Assert that the SQL query was executed with the correct arguments (meal ID)
     expected_arguments = (meal_id,)
     assert actual_arguments == expected_arguments, f"The SQL query arguments did not match. Expected {expected_arguments}, got {actual_arguments}."
 
 ### Test for Updating a Deleted Meal:
 def test_update_meal_stats_deleted_meal(mock_cursor):
-    """Test error when trying to update meal stats for a deleted song."""
+    """Test error when trying to update meal stats for a deleted meal."""
 
-    # Simulate that the song exists but is marked as deleted (id = 1)
+    # Simulate that the meal exists but is marked as deleted (id = 1)
     mock_cursor.fetchone.return_value = [True]
 
-    # Expect a ValueError when attempting to update a deleted song
+    # Expect a ValueError when attempting to update a deleted meal
     with pytest.raises(ValueError, match="Meal with ID 1 has been deleted"):
         update_meal_stats(1, "win")
 
