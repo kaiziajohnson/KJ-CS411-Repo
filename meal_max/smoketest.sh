@@ -206,9 +206,9 @@ create_meal "Burger" "American" 5.0 'MED'
 create_meal "Pizza" "Itlaian" 7.0 'LOW'
 create_meal "Sushi" "Japanese" 4.0 'LOW'
 
-delete_meal 3
 get_meal_by_id 2
 
+clear_combatants
 prep_combatant "Burger" "American" 5.0 'MED'
 prep_combatant "Pizza" "Itlaian" 7.0 'LOW'
 prep_combatant "Sushi" "Japanese" 4.0 'LOW'
@@ -217,6 +217,7 @@ get_combatants
 get_battle_score 1
 get_battle_score 2
 
-clear_combatants
+get_meal_leaderboard
+delete_meal 3
 
 echo "All tests passed successfully!"
