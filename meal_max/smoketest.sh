@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the base URL for the Flask API
-BASE_URL="http://localhost:5000/api"
+BASE_URL="http://localhost:5100/api"
 
 # Flag to control whether to echo JSON output
 ECHO_JSON=false
@@ -52,22 +52,14 @@ check_db() {
 #
 ##########################################################
 
-<<<<<<< HEAD
-create_song() {
-=======
 create_meal() {
->>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
   meal=$1
   cuisine=$2
   price=$3
   difficulty=$4
 
   echo "Adding meal ($meal - $cusine, $price) to the kitchen..."
-<<<<<<< HEAD
-  curl -s -X POST "$BASE_URL/create-song" -H "Content-Type: application/json" \
-=======
   curl -s -X POST "$BASE_URL/create-meal" -H "Content-Type: application/json" \
->>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
     -d "{\"meal\":\"$meal\", \"title\":\"$title\", \"price\":$price, \"difficulty\":\"$difficulty\"}" | grep -q '"status": "success"'
 
   if [ $? -eq 0 ]; then
@@ -78,11 +70,7 @@ create_meal() {
   fi
 }
 
-<<<<<<< HEAD
-delete_song_by_id() {
-=======
 delete_meal() {
->>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
   meal_id=$1
 
   echo "Deleting meal by ID ($meal_id)..."
@@ -99,15 +87,9 @@ get_meal_by_id() {
   meal_id=$1
 
   echo "Getting meal by ID ($meal_id)..."
-<<<<<<< HEAD
-  response=$(curl -s -X GET "$BASE_URL/get-song-from-catalog-by-id/$meal_id")
-  if echo "$response" | grep -q '"status": "success"'; then
-    echo "Song retrieved successfully by ID ($meal_id)."
-=======
   response=$(curl -s -X GET "$BASE_URL/get-meal-by-id/$meal_id")
   if echo "$response" | grep -q '"status": "success"'; then
     echo "Meal retrieved successfully by ID ($meal_id)."
->>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
     if [ "$ECHO_JSON" = true ]; then
       echo "Meal JSON (ID $meal_id):"
       echo "$response" | jq .
@@ -118,23 +100,6 @@ get_meal_by_id() {
   fi
 }
 
-<<<<<<< HEAD
-get_song_by_compound_key() {
-  artist=$1
-  title=$2
-  year=$3
-
-  echo "Getting song by compound key (Artist: '$artist', Title: '$title', Year: $year)..."
-  response=$(curl -s -X GET "$BASE_URL/get-song-from-catalog-by-compound-key?artist=$(echo $artist | sed 's/ /%20/g')&title=$(echo $title | sed 's/ /%20/g')&year=$year")
-  if echo "$response" | grep -q '"status": "success"'; then
-    echo "Song retrieved successfully by compound key."
-    if [ "$ECHO_JSON" = true ]; then
-      echo "Song JSON (by compound key):"
-      echo "$response" | jq .
-    fi
-  else
-    echo "Failed to get song by compound key."
-=======
 ############################################################
 #
 # Battle Management
@@ -205,7 +170,6 @@ prep_combatant() {
     fi
   else
     echo "Failed to add combatant $meal."
->>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
     exit 1
   fi
 }
@@ -219,11 +183,7 @@ prep_combatant() {
 # Function to get the meal leaderboard sorted by meal stats
 get_meal_leaderboard() {
   echo "Getting meal leaderboard sorted by meal stats..."
-<<<<<<< HEAD
-  response=$(curl -s -X GET "$BASE_URL/song-leaderboard?sort=meal_stats")
-=======
   response=$(curl -s -X GET "$BASE_URL/meal-leaderboard?sort=meal_stats")
->>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)
   if echo "$response" | grep -q '"status": "success"'; then
     echo "Meal leaderboard retrieved successfully."
     if [ "$ECHO_JSON" = true ]; then
@@ -234,9 +194,6 @@ get_meal_leaderboard() {
     echo "Failed to get meal leaderboard."
     exit 1
   fi
-<<<<<<< HEAD
-}
-=======
 }
 
 # Health checks
@@ -263,4 +220,3 @@ get_battle_score 2
 clear_combatants
 
 echo "All tests passed successfully!"
->>>>>>> 9eba516 (Finshed Smoketest.sh and fixed some unchanged character in Kitchen_model_test)

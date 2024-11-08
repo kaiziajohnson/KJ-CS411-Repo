@@ -3,8 +3,8 @@ import logging
 import sqlite3
 from typing import Dict, Any
 
-from meal_max.meal_max.utils.sql_utils import get_db_connection
-from meal_max.meal_max.utils.logger import configure_logger
+from meal_max.utils.sql_utils import get_db_connection
+from meal_max.utils.logger import configure_logger
 
 
 logger = logging.getLogger(__name__)
