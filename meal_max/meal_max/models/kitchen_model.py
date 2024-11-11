@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import logging
 import sqlite3
 from typing import Dict, Any
+import os
 
 from meal_max.utils.sql_utils import get_db_connection
 from meal_max.utils.logger import configure_logger
@@ -187,6 +188,26 @@ def get_meal_by_id(meal_id: int) -> Meal:
         logger.error("Database error: %s", str(e))
         raise e
 
+def clear_meals() -> None:
+    """
+    Recreates the meals table, effectively deleting all meals.
+
+    Raises:
+        sqlite3.Error: If any database error occurs.
+    """
+    try:
+        with open(os.getenv("SQL_CREATE_TABLE_PATH", "/app/sql/create_meal_table.sql"), "r") as fh:
+            create_table_script = fh.read()
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.executescript(create_table_script)
+            conn.commit()
+
+            logger.info("Meals cleared successfully.")
+
+    except sqlite3.Error as e:
+        logger.error("Database error while clearing meals: %s", str(e))
+        raise e
 
 def get_meal_by_name(meal_name: str) -> Meal:
     """

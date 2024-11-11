@@ -9,9 +9,13 @@ def battle_model():
     return BattleModel()
 
 @pytest.fixture()
-def mock_update_play_count(mocker):
-    """Mock the update_play_count function for testing purposes."""
-    return mocker.patch("meal_max.models.battle_model.update_play_count")
+def mock_update_meal_stats(mocker):
+    """Mock the update_meal_stats function for testing purposes."""
+    return mocker.patch("meal_max.models.battle_model.update_meal_stats")
+
+@pytest.fixture
+def mock_get_random(mocker):
+    return mocker.patch("meal_max.models.battle_model.get_random")
 
 """Fixtures providing sample meals for the tests."""
 @pytest.fixture
@@ -29,7 +33,6 @@ def sample_meal3():
 @pytest.fixture
 def sample_combatants_list(sample_meal1, sample_meal2):
     return[sample_meal1,sample_meal2]
-
 
 ###############################################
 # Test Initialization
@@ -75,6 +78,17 @@ def test_not_enough_combatants(battle_model, sample_meal1):
     battle_model.prep_combatant(sample_meal1)
     with pytest.raises(ValueError, match="Two combatants must be prepped for a battle."):
         battle_model.battle()
+
+def test_battle_win_first_meal(mock_update_meal_stats, mock_get_random, battle_model, sample_meal1, sample_meal2):
+    mock_get_random.return_value = 0.1
+    battle_model.combatants.extend(sample_combatants_list)
+    winner = battle_model.battle()
+
+    assert winner == sample_meal1, "Expected winner of the battle is Burger"
+    assert battle_model.combatants[0] == sample_meal1, "Expected first combatant to remain in the combatant list"
+    mock_update_meal_stats.assert_any_call(sample_meal1, "win")
+    mock_update_meal_stats.assert_any_call(sample_meal2, "loss")
+
 
 ###############################################
 # Clear Combatants Test Case

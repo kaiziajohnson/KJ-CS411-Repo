@@ -52,23 +52,42 @@ check_db() {
 #
 ##########################################################
 
+clear_catalog() {
+  echo "Clearing the meals..."
+  response=$(curl -s -X DELETE "$BASE_URL/clear-meals")
+
+  status=$(echo "$response" | jq -r '.status')
+  error_message=$(echo "$response" | jq -r '.error // "No error message provided"')
+
+  if [[ "$status" == "success" ]]; then
+    echo "Meals cleared successfully."
+  else
+    echo "Failed to clear meals: $error_message"
+    exit 1
+  fi
+}
+
+
 create_meal() {
   meal=$1
   cuisine=$2
   price=$3
   difficulty=$4
 
-  echo "Adding meal ($meal - $cusine, $price) to the kitchen..."
-  curl -s -X POST "$BASE_URL/create-meal" -H "Content-Type: application/json" \
-    -d "{\"meal\":\"$meal\", \"title\":\"$title\", \"price\":$price, \"difficulty\":\"$difficulty\"}" | grep -q '"status": "success"'
+  echo "Adding meal ($meal, $cuisine, $price, $difficulty) to the kitchen..."
+  response=$(curl -s -X POST "$BASE_URL/create-meal"\
+    -H "Content-Type: application/json" \
+    -d "{\"meal\":\"$meal\", \"cuisine\":\"$cuisine\", \"price\":$price, \"difficulty\":\"$difficulty\"}")
 
+  echo "$response" | grep -q '"status": "success"'
   if [ $? -eq 0 ]; then
     echo "Meal added successfully."
   else
-    echo "Failed to add meal."
+    echo "Failed to add meal: $response"
     exit 1
   fi
 }
+
 
 delete_meal() {
   meal_id=$1
@@ -78,27 +97,32 @@ delete_meal() {
   if echo "$response" | grep -q '"status": "success"'; then
     echo "Meal deleted successfully by ID ($meal_id)."
   else
-    echo "Failed to delete meal by ID ($meal_id)."
+    echo "Failed to delete meal by ID ($meal_id): $response"
     exit 1
   fi
 }
+
 
 get_meal_by_id() {
   meal_id=$1
 
   echo "Getting meal by ID ($meal_id)..."
   response=$(curl -s -X GET "$BASE_URL/get-meal-by-id/$meal_id")
-  if echo "$response" | grep -q '"status": "success"'; then
+  
+  echo "$response" | grep -q '"status": "success"'
+  if [ $? -eq 0 ]; then
     echo "Meal retrieved successfully by ID ($meal_id)."
     if [ "$ECHO_JSON" = true ]; then
       echo "Meal JSON (ID $meal_id):"
       echo "$response" | jq .
     fi
   else
-    echo "Failed to get meal by ID ($meal_id)."
+    echo "Failed to get meal by ID ($meal_id): $response"
     exit 1
   fi
 }
+
+
 
 ############################################################
 #
@@ -154,25 +178,23 @@ get_combatants() {
 
 prep_combatant() {
   meal=$1
-  price=$2
-  cuisine=$3
+  price=$3
+  cuisine=$2
   difficulty=$4
 
   echo "Adding meals to combatant list: $meal, Price: $price, Cuisine: $cuisine, Difficulty: $difficulty..."
   response=$(curl -s -X POST "$BASE_URL/prep-combatant" -H "Content-Type: application/json" \
     -d "{\"meal\": \"$meal\", \"price\": $price, \"cuisine\": \"$cuisine\", \"difficulty\": \"$difficulty\"}")
 
-  if echo "$response" | grep -q '"status": "success"'; then
+  echo "$response" | grep -q '"status": "success"'
+  if [ $? -eq 0 ]; then
     echo "Combatant $meal added successfully."
-    if [ "$ECHO_JSON" = true ]; then
-      echo "Response JSON:"
-      echo "$response" | jq .
-    fi
   else
-    echo "Failed to add combatant $meal."
+    echo "Failed to add combatant $meal: $response"
     exit 1
   fi
 }
+
 
 ######################################################
 #
@@ -200,24 +222,26 @@ get_meal_leaderboard() {
 check_health
 check_db
 
-meal: str, cuisine: str, price: float, difficulty: str
+
 #Create meals
+clear_catalog
 create_meal "Burger" "American" 5.0 'MED'
 create_meal "Pizza" "Itlaian" 7.0 'LOW'
 create_meal "Sushi" "Japanese" 4.0 'LOW'
 
-get_meal_by_id 2
+delete_meal 3
+
+get_meal_by_id 1
 
 clear_combatants
+
 prep_combatant "Burger" "American" 5.0 'MED'
 prep_combatant "Pizza" "Itlaian" 7.0 'LOW'
-prep_combatant "Sushi" "Japanese" 4.0 'LOW'
 
 get_combatants
 get_battle_score 1
 get_battle_score 2
 
 get_meal_leaderboard
-delete_meal 3
 
 echo "All tests passed successfully!"
