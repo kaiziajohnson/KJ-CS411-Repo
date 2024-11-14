@@ -1,7 +1,7 @@
 import pytest
 
-from meal_max.meal_max.models.battle_model import BattleModel
-from meal_max.meal_max.models.kitchen_model import Meal
+from meal_max.models.battle_model import BattleModel
+from meal_max.models.kitchen_model import Meal
 from unittest.mock import patch
 
 @pytest.fixture()
@@ -12,7 +12,7 @@ def battle_model():
 @pytest.fixture()
 def mock_update_meal_stats(mocker):
     """Mock the update_meal_stats function for testing purposes."""
-    return mocker.patch("meal_max.models.battle_model.update_meal_stats")
+    return mocker.patch("meal_max.models.kitchen_model.update_meal_stats")
 
 @pytest.fixture
 def mock_get_random(mocker):
@@ -25,11 +25,11 @@ def sample_meal1():
 
 @pytest.fixture
 def sample_meal2():
-    return Meal(id=2, meal="Pizza", cuisine"Itlaian", price=7.0, difficulty='LOW')
+    return Meal(id=2, meal="Pizza", cuisine="Itlaian", price=7.0, difficulty='LOW')
 
 @pytest.fixture
 def sample_meal3():
-    return Meal(id=3, meal="Sushi", cuisine"Japanese", price=4.0, difficulty='LOW')
+    return Meal(id=3, meal="Sushi", cuisine="Japanese", price=4.0, difficulty='LOW')
 
 @pytest.fixture
 def sample_combatants_list(sample_meal1, sample_meal2):
@@ -75,16 +75,16 @@ def test_not_enough_combatants(battle_model, sample_meal1):
     with pytest.raises(ValueError, match="Two combatants must be prepped for a battle."):
         battle_model.battle()
 
-def test_battle_win_meal(mock_update_meal_stats, mock_get_random, battle_model, sample_meal1, sample_meal2):
+
+def test_battle_win_meal(mock_update_meal_stats,sample_combatants_list, mock_get_random, battle_model, sample_meal1, sample_meal2):
     mock_get_random.return_value = 0.1
     battle_model.combatants.extend(sample_combatants_list)
     winner = battle_model.battle()
 
-    assert winner in ["Burger", "Pizza"], "Winner must be one of the initial combatants"
+    assert winner == "Pizza", "Winner must be Pizza"
     assert len(battle_model.combatants)== 1, "Expected one combatant to remain in the combatant list"
-    mock_update_meal_stats.assert_any_call(sample_meal1, "win")
-    mock_update_meal_stats.assert_any_call(sample_meal2, "loss")
-
+    mock_update_meal_stats.assert_any_call(sample_meal2.id, 'win')
+    mock_update_meal_stats.assert_any_call(sample_meal1.id, 'loss')
 
 ###############################################
 # Clear Combatants Test Case
