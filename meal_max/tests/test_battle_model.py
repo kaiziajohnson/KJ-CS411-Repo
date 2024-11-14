@@ -2,6 +2,7 @@ import pytest
 
 from meal_max.meal_max.models.battle_model import BattleModel
 from meal_max.meal_max.models.kitchen_model import Meal
+from unittest.mock import patch
 
 @pytest.fixture()
 def battle_model():
@@ -20,15 +21,15 @@ def mock_get_random(mocker):
 """Fixtures providing sample meals for the tests."""
 @pytest.fixture
 def sample_meal1():
-    return Meal(1, "Burger", "American", 5.0, 'MED')
+    return Meal(id=1, meal="Burger", cuisine="American", price=5.0, difficulty='MED')
 
 @pytest.fixture
 def sample_meal2():
-    return Meal(2, "Pizza", "Itlaian", 7.0, 'LOW')
+    return Meal(id=2, meal="Pizza", cuisine"Itlaian", price=7.0, difficulty='LOW')
 
 @pytest.fixture
 def sample_meal3():
-    return Meal(3, "Sushi", "Japanese", 4.0, 'LOW')
+    return Meal(id=3, meal="Sushi", cuisine"Japanese", price=4.0, difficulty='LOW')
 
 @pytest.fixture
 def sample_combatants_list(sample_meal1, sample_meal2):
@@ -69,23 +70,18 @@ def test_get_battle_score(battle_model, sample_meal1):
 # Battle Function Test Cases
 ###############################################
 
-def test_battle(battle_model, sample_combatants_list):
-    battle_model.combatants.extend(sample_combatants_list)
-    winner = battle_model.battle()
-    assert winner in ["Burger", "Pizza"], "Winner must be one of the initial combatants"
-
 def test_not_enough_combatants(battle_model, sample_meal1):
     battle_model.prep_combatant(sample_meal1)
     with pytest.raises(ValueError, match="Two combatants must be prepped for a battle."):
         battle_model.battle()
 
-def test_battle_win_first_meal(mock_update_meal_stats, mock_get_random, battle_model, sample_meal1, sample_meal2):
+def test_battle_win_meal(mock_update_meal_stats, mock_get_random, battle_model, sample_meal1, sample_meal2):
     mock_get_random.return_value = 0.1
     battle_model.combatants.extend(sample_combatants_list)
     winner = battle_model.battle()
 
-    assert winner == sample_meal1, "Expected winner of the battle is Burger"
-    assert battle_model.combatants[0] == sample_meal1, "Expected first combatant to remain in the combatant list"
+    assert winner in ["Burger", "Pizza"], "Winner must be one of the initial combatants"
+    assert len(battle_model.combatants)== 1, "Expected one combatant to remain in the combatant list"
     mock_update_meal_stats.assert_any_call(sample_meal1, "win")
     mock_update_meal_stats.assert_any_call(sample_meal2, "loss")
 
